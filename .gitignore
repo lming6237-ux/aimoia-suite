@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+target/
+target-ui/
+*.log
+
+# Copied from shared browser packages before Tauri dev/build.
+apps/*/public/shared/
+
+# Local runtime data
+data/
+local-app-data/
+generated-images/
+.workbuddy/
+
+# Generated application metadata
+**/src-tauri/gen/
+
+# Delivery artifacts are stored outside the source repository.
+deliverables/
+*.exe
+*.msi
+*.dmg
+*.app
+*.zip
+
+# Private migration and conversation material
+conversation-files-migration-*/
+\# Files mentioned by the user*.md
+.migration-workspace/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.pfx
+credentials.json
+auth.json
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+*.swp

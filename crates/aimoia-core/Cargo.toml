@@ -1,0 +1,9 @@
+[package]
+name = "aimoia-core"
+version = "0.1.0"
+edition = "2021"
+description = "AimoiA 共享的产品标识与基础错误类型"
+license = "UNLICENSED"
+publish = false
+
+[dependencies]

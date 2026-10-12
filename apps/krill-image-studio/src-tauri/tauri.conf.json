@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "AimoiA Image Studio",
+  "version": "1.0.3",
+  "identifier": "com.edy.krillimagestudio",
+  "build": {
+    "frontendDist": "../public"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [{
+      "title": "AimoiA Image Studio",
+      "width": 1380,
+      "height": 860,
+      "minWidth": 980,
+      "minHeight": 700,
+      "resizable": true,
+      "center": true
+    }],
+    "security": { "csp": null }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "shortDescription": "支持多供应商和动态模型发现的 AI 图片创作工具",
+    "category": "GraphicsAndDesign",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "10.15",
+      "signingIdentity": "-"
+    }
+  }
+}

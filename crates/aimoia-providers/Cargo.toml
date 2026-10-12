@@ -1,0 +1,10 @@
+[package]
+name = "aimoia-providers"
+version = "0.1.0"
+edition = "2021"
+description = "AimoiA 产品共享的供应商协议与模型解析能力"
+license = "UNLICENSED"
+publish = false
+
+[dependencies]
+serde_json = "1"

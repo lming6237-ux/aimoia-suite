@@ -1,0 +1,32 @@
+[package]
+name = "krill-image-studio"
+version = "1.0.3"
+description = "支持多供应商与模型发现的本地 AI 图片创作工具"
+authors = ["EDY"]
+edition = "2021"
+
+[lib]
+name = "krill_image_studio_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+aimoia-core = { path = "../../../crates/aimoia-core" }
+aimoia-providers = { path = "../../../crates/aimoia-providers" }
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12", features = ["json", "multipart", "rustls-tls"], default-features = false }
+tokio = { version = "1", features = ["time", "fs"] }
+base64 = "0.22"
+dirs = "6"
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+keyring = { version = "3", features = ["windows-native"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+keyring = { version = "3", features = ["apple-native"] }

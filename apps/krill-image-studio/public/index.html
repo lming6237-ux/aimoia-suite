@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0d513c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="AimoiA Image">
+  <title>AimoiA Image Studio</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./mobile.css">
+  <link rel="stylesheet" href="./brand-theme.css">
+</head>
+<body>
+  <header class="topbar">
+    <div id="brandTrigger" class="brand"><img src="./icon.png" alt="AimoiA Image Studio"><div><strong>AimoiA Image Studio <small>v1.0.3</small></strong><span>把灵感，画出来</span></div></div>
+    <div class="top-actions"><span id="workspaceBadge" class="workspace-badge">用户端</span><span id="connection" class="connection"><i></i><b>尚未配置</b></span><button id="openSettings" class="button secondary" type="button" aria-label="打开设置">设置</button></div>
+  </header>
+  <main class="app-shell">
+    <aside class="creator-panel">
+      <div class="panel-intro"><span>CREATE</span><strong>今天想画点什么？</strong><p>选择创作方式，把脑海里的画面交给 AI。</p></div>
+      <div class="mode-tabs"><button class="mode-tab active" data-mode="generate">文生图</button><button class="mode-tab" data-mode="edit">图生图</button></div>
+      <section id="editInputs" class="edit-inputs" hidden>
+        <label class="upload-box"><input id="sourceInput" type="file" accept="image/png,image/jpeg,image/webp" multiple><b>上传参考图</b><span id="sourceName">最多 10 张，PNG、JPG、WEBP，单张最大 25MB</span><button id="clearSource" class="clear-upload" type="button" hidden aria-label="清空所有参考图">×</button></label>
+        <label class="upload-box subtle"><input id="maskInput" type="file" accept="image/png"><b>上传蒙版，可选</b><span id="maskName">透明 PNG，透明区域进行修改</span><button id="clearMask" class="clear-upload" type="button" hidden aria-label="取消上传的蒙版">×</button></label>
+      </section>
+      <div id="sourceList" class="source-list" hidden></div>
+      <label class="field prompt-field"><span>图片描述</span><textarea id="prompt" placeholder="描述画面主体、风格、构图、光线与细节……"></textarea></label>
+      <div class="field"><span>模型</span><div class="model-row"><select id="modelSelect"><option value="">请选择模型</option></select><button id="refreshModels" class="icon-button admin-only" title="重新获取模型" type="button">↻</button></div></div>
+      <div class="two-fields">
+        <label class="field"><span>尺寸</span><select id="size"><option value="auto">自动</option><option value="1024x1024">1:1 · 1024×1024</option><option value="1536x1024">3:2 · 1536×1024</option><option value="1024x1536">2:3 · 1024×1536</option><option value="2048x1152">16:9 · 2048×1152</option><option value="1152x2048">9:16 · 1152×2048</option><option value="1536x1152">4:3 · 1536×1152</option><option value="1152x1536">3:4 · 1152×1536</option></select></label>
+        <label class="field"><span>质量</span><select id="quality"><option value="auto">自动</option><option value="low">低 · 草稿</option><option value="medium" selected>中 · 标准</option><option value="high">高 · 精细</option></select></label>
+      </div>
+      <label class="field"><span>文件名</span><input id="filename" value="created-image.png"></label>
+      <p id="error" class="error" hidden></p>
+      <button id="generate" class="button primary generate-button"><span>生成图片</span><small id="generateHint">优先使用 URL 返回</small></button>
+    </aside>
+    <section class="canvas-panel">
+      <div class="canvas-head"><div><strong>创作画布</strong><span id="resultMeta">等待生成</span></div><div id="canvasActions" class="canvas-actions" hidden><button id="reuse" class="button secondary">用作图生图</button><a id="download" class="button secondary" download>下载</a><button id="closeCanvas" class="button secondary close-canvas" type="button" aria-label="关闭画布上的图片">关闭</button></div></div>
+      <div id="canvas" class="canvas"><div class="empty-state"><img src="./icon.png" alt=""><span>READY TO CREATE</span><strong>灵感画布准备好了</strong><p>输入描述，第一张作品会从这里出现</p></div><img id="resultImage" alt="生成结果"></div>
+    </section>
+    <aside class="history-panel">
+      <div class="history-head"><div><strong>本地历史</strong><span>最近 100 张</span></div><select id="historyFilter"><option value="all">全部</option><option value="generate">文生图</option><option value="edit">图生图</option></select></div>
+      <div id="history" class="history-list"><div class="history-empty">暂无生成记录</div></div>
+    </aside>
+  </main>
+  <dialog id="settingsDialog">
+    <form id="settingsForm">
+      <header><div><strong id="settingsTitle">用户设置</strong><span id="settingsSubtitle">填写你的专属 API Key</span></div><button id="closeSettings" class="dialog-close" type="button">×</button></header>
+      <label id="baseUrlField" class="field admin-only"><span>API 地址</span><input id="baseUrl" placeholder="https://api.example.com/v1"><small>管理端可配置 OpenAI 兼容接口地址</small></label>
+      <label class="field"><span>API Key</span><input id="apiKey" type="password" autocomplete="off" placeholder="留空则继续使用已保存的 Key"></label>
+      <div class="fetch-row admin-only"><button id="fetchModels" class="button primary" type="button">获取并保存可用模型</button><span id="fetchStatus">图片模型会排在列表前面</span></div>
+      <label class="field admin-only"><span>默认图片模型</span><select id="settingsModel"><option value="">尚未获取模型</option></select></label>
+      <label class="field admin-only"><span>图片返回方式</span><select id="responseFormat"><option value="url">URL，速度优先</option><option value="b64_json">Base64，兼容优先</option></select><small>URL 模式可显著减少大体积 JSON 的传输时间</small></label>
+      <label class="field admin-only"><span>图片保存目录</span><input id="outputDir" placeholder="例如：AI 创作图片保存目录"></label>
+      <p id="privacyNote" class="privacy">Key 保存在系统安全凭据中；设置、模型列表、历史记录与图片均保存在本机。</p>
+      <footer><button id="cancelSettings" class="button secondary" type="button">取消</button><button id="saveSettings" class="button primary" type="submit">保存设置</button></footer>
+    </form>
+  </dialog>
+  <dialog id="adminDialog" class="admin-dialog"><form id="adminForm"><header><div><strong>管理端</strong><span>请输入管理者密码</span></div><button id="closeAdmin" class="dialog-close" type="button">×</button></header><label class="field"><span>管理者密码</span><input id="adminPassword" type="password" autocomplete="off"></label><p id="adminError" class="error" hidden></p><footer><button id="cancelAdmin" class="button secondary" type="button">取消</button><button class="button primary" type="submit">进入管理端</button></footer></form></dialog>
+  <dialog id="previewDialog" class="preview-dialog"><button id="closePreview" class="dialog-close" type="button">×</button><img id="previewImage" alt="图片大图"><div id="previewCaption"></div></dialog>
+  <script>
+    (() => {
+      const showBootError = message => {
+        if (document.querySelector("[data-app-boot-error]")) return;
+        const box = document.createElement("div");
+        box.dataset.appBootError = "1";
+        box.textContent = `应用脚本启动失败：${message}`;
+        Object.assign(box.style, {
+          position: "fixed",
+          left: "20px",
+          right: "20px",
+          bottom: "20px",
+          zIndex: "9999",
+          padding: "14px 18px",
+          border: "1px solid #ff6547",
+          borderRadius: "10px",
+          background: "#fff5f1",
+          color: "#8f2f20",
+          font: "14px/1.5 sans-serif",
+          boxShadow: "0 8px 24px rgba(70, 35, 25, .16)"
+        });
+        document.body.appendChild(box);
+      };
+      const boot = async () => {
+        try {
+          const response = await fetch("./app.js", { cache: "no-store" });
+          if (!response.ok) throw new Error(`app.js 返回 ${response.status}`);
+          const source = await response.text();
+          new Function(source)();
+          document.documentElement.dataset.appReady = "1";
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          showBootError(message);
+          console.error("AimoiA Image Studio boot failed", error);
+        }
+      };
+      boot();
+    })();
+  </script>
+</body>
+</html>

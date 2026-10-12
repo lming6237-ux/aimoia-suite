@@ -1,0 +1,13 @@
+{
+  "name": "krill-image-studio",
+  "private": true,
+  "version": "1.0.3",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.8.0"
+  },
+  "dependencies": {}
+}

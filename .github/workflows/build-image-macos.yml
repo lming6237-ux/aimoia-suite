@@ -1,0 +1,37 @@
+name: Build AimoiA Image Studio for Intel Mac
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15-intel
+    defaults:
+      run:
+        working-directory: apps/krill-image-studio
+    env:
+      CARGO_TARGET_DIR: ${{ github.workspace }}/target/image-macos
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/krill-image-studio/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin
+      - name: Install dependencies
+        run: npm ci
+      - name: Test Rust backend
+        run: cargo test --manifest-path src-tauri/Cargo.toml --target x86_64-apple-darwin
+      - name: Build Intel DMG
+        run: npm run build -- --target x86_64-apple-darwin --bundles dmg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AimoiA-Image-Studio-macOS-intel
+          path: target/image-macos/x86_64-apple-darwin/release/bundle/dmg/*.dmg
+          if-no-files-found: error
