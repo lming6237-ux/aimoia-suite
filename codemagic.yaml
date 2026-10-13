@@ -1,0 +1,47 @@
+workflows:
+  image-studio-intel:
+    name: AimoiA Image Studio - Intel Mac
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      node: 22
+      vars:
+        CARGO_TARGET_DIR: /tmp/aimoia-image-target
+    scripts:
+      - name: Prepare Rust
+        script: |
+          set -euo pipefail
+          if ! command -v rustup >/dev/null 2>&1; then
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
+          fi
+          export PATH="$HOME/.cargo/bin:$PATH"
+          rustup toolchain install stable --profile minimal
+          rustup target add --toolchain stable x86_64-apple-darwin
+      - name: Install frontend dependencies
+        script: |
+          set -euo pipefail
+          cd "$CM_BUILD_DIR/apps/krill-image-studio"
+          npm ci
+          node --check public/app.js
+      - name: Test backend on build host
+        script: |
+          set -euo pipefail
+          export PATH="$HOME/.cargo/bin:$PATH"
+          cd "$CM_BUILD_DIR/apps/krill-image-studio"
+          cargo +stable test --manifest-path src-tauri/Cargo.toml
+      - name: Build Intel Mac installer
+        script: |
+          set -euo pipefail
+          export PATH="$HOME/.cargo/bin:$PATH"
+          export RUSTUP_TOOLCHAIN=stable
+          cd "$CM_BUILD_DIR/apps/krill-image-studio"
+          npm run build -- --target x86_64-apple-darwin --bundles dmg
+          binary="$CARGO_TARGET_DIR/x86_64-apple-darwin/release/bundle/macos/AimoiA Image Studio.app/Contents/MacOS/krill-image-studio"
+          lipo -verify_arch x86_64 "$binary"
+          mkdir -p "$CM_BUILD_DIR/build-artifacts"
+          cp "$CARGO_TARGET_DIR"/x86_64-apple-darwin/release/bundle/dmg/*.dmg "$CM_BUILD_DIR/build-artifacts/"
+          cd "$CM_BUILD_DIR/build-artifacts"
+          shasum -a 256 *.dmg > SHA256SUMS.txt
+    artifacts:
+      - build-artifacts/*.dmg
+      - build-artifacts/SHA256SUMS.txt

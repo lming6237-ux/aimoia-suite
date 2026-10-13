@@ -25,7 +25,10 @@
 
 ## 已知限制
 
+- 2026 年 10 月 13 日：公开仓库重试运行 `38333602458` 确认账号因计费问题锁定。已准备 `codemagic.yaml`，使用 M2 构建主机测试后端并交叉构建 Intel x64 DMG、检查架构和生成 SHA-256 校验文件。待用户注册并授权 Codemagic 仓库访问后运行；尚未完成云端验证、签名公证和真机验证。
+
 - 2026 年 10 月 12 日：根仓库增加 Intel macOS DMG 构建工作流 `.github/workflows/build-image-macos.yml`，适用于当前共享 crate 目录结构。当前 Windows 环境未接入 Mac 构建机，根仓库未配置 Git remote；工作流尚未执行，当前版本 Mac 安装包尚未生成，也未完成签名、公证和真机验证。
+- 2026 年 10 月 12 日后续：Image Studio 当前源码及两个依赖 crate 已通过独立发布快照上传至用户指定私有仓库 `lming6237-ux/aimoia-suite`，没有上传本地完整历史或 PPT 修改。Intel Mac 工作流运行 `38241241549` 和最小 Linux 探测运行 `38241593518` 均以 `startup_failure` 结束，jobs 为零，无编译日志；具体原因待从 GitHub 网页错误提示确认。尚未生成新版 DMG。
 
 - Credential Manager 服务名、`localStorage`、IndexedDB 和 PWA 缓存键仍使用旧值，未做迁移。
 - 账户、支付、订单履约、余额账本和受控调用网关尚未实现。
